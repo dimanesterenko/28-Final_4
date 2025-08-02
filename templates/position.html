@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <img src="/static/menu/{{position.file_name}}">
+    <p>{{position.name}}  ({{position.weight}})</p>
+    <small>{{position.ingredients}}</small>
+    <p>Опис:</p>
+    <pre>{{position.description}}</pre>
+    <p>{{position.price}} UAH</p>
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="name" value="{{position.name}}">
+        <input type="number" name="num">
+        <input type="submit" value="Додати">
+    </form>
+</body>
+</html>
