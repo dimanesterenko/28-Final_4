@@ -3,16 +3,21 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship, sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
-
+import os
 from flask_login import UserMixin
 
 import bcrypt # pip install bcrypt
 
-PGUSER="postgres"
-PGPASSWORD = "21022004"
-engine = create_engine(f"postgresql+psycopg2://{PGUSER}:{PGPASSWORD}@localhost:5432/online_restaurant", echo=True)
-Session = sessionmaker(bind=engine)
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
+# Fallback для локального запуску (опціонально)
+if not DATABASE_URL:
+    PGUSER = "postgres"
+    PGPASSWORD = "21022004"
+    DATABASE_URL = f"postgresql+psycopg2://{PGUSER}:{PGPASSWORD}@localhost:5432/online_restaurant"
+
+engine = create_engine(DATABASE_URL, echo=True)
+Session = sessionmaker(bind=engine)
 # Базовий клас для моделей
 class Base(DeclarativeBase):
     def create_db(self):
