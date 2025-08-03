@@ -2,6 +2,7 @@ from flask import Flask, redirect, render_template, request, session, flash, url
 from flask_login import LoginManager, current_user, login_required, login_user
 from online_restaurant_db import Reservation, Session, Menu, Orders, Users
 import secrets
+import os
 import datetime
 app = Flask(__name__)
 # app.secret_key = secrets.token_hex(32)  
@@ -193,6 +194,41 @@ def my_order(id):
 
 
 #ADMINKA
+
+@app.route('/add_menu', methods=['GET', 'POST'])
+@login_required
+def add_menu():
+    if current_user.nickname != 'Admin':
+        return redirect(url_for('home'))
+
+    if request.method == 'POST':
+        if request.form.get("csrf_token") != session['csrf_token']:
+            return "Запит заблоковано!", 403
+
+        name = request.form['name']
+        weight = request.form['weight']
+        ingredients = request.form['ingredients']
+        description = request.form['description']
+        price = request.form['price']
+        photo = request.files['photo']
+        photo.save(os.path.join('static/menu', photo.filename))
+        file_name = photo.filename
+        with Session() as cursor:
+            new_dish = Menu(
+                name=name,
+                weight=weight,
+                ingredients=ingredients,
+                description=description,
+                price=int(price),
+                active=True,
+                file_name=file_name
+            )
+            cursor.add(new_dish)
+            cursor.commit()
+        return redirect(url_for('menu_check'))
+
+    return render_template('add_menu.html', csrf_token=session["csrf_token"])
+
 @app.route('/menu_check', methods=['GET', 'POST'])
 @login_required
 def menu_check():
